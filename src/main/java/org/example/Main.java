@@ -1,133 +1,92 @@
 package org.example;
-import java.util.ArrayList;
+
+import java.util.List;
 import java.util.Scanner;
 
-class Song {
-
-    String title;
-    String artist;
-    String duration;
-
-    Song(String title, String artist, String duration) {
-        this.title = title;
-        this.artist = artist;
-        this.duration = duration;
-    }
-
-    void display() {
-        System.out.println("Title: " + title);
-        System.out.println("Artist: " + artist);
-        System.out.println("Duration: " + duration);
-        System.out.println("----------------------");
-    }
-}
-
+/**
+ * Main application coordinator and terminal interface for the Music Playlist Engine.
+ */
 public class Main {
 
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Playlist playlist = new Playlist();
 
-        Scanner sc = new Scanner(System.in);
-
-        ArrayList<Song> playlist = new ArrayList<>();
-
-        // Demo songs
-        playlist.add(new Song("Perfect", "Ed Sheeran", "4:23"));
-        playlist.add(new Song("Shape of You", "Ed Sheeran", "3:53"));
-        playlist.add(new Song("Believer", "Imagine Dragons", "3:24"));
-        playlist.add(new Song("Blinding Lights", "The Weeknd", "3:20"));
+        // Populate initial demo songs
+        playlist.addSong(new Song("Perfect", "Ed Sheeran", "4:23"));
+        playlist.addSong(new Song("Shape of You", "Ed Sheeran", "3:53"));
+        playlist.addSong(new Song("Believer", "Imagine Dragons", "3:24"));
+        playlist.addSong(new Song("Blinding Lights", "The Weeknd", "3:20"));
 
         int choice;
 
         do {
+            System.out.println("\n================================");
+            System.out.println("      MUSIC PLAYLIST ENGINE     ");
+            System.out.println("================================");
+            System.out.println("1. Search Song Online by Title");
+            System.out.println("2. Search Song Online by Artist");
+            System.out.println("3. View Local Playlist");
+            System.out.println("0. Exit");
+            System.out.println("================================");
 
-            System.out.println("\n===== MUSIC PLAYLIST =====");
-            System.out.println("1. Search Songs by Title");
-            System.out.println("2. Search Songs by Artist");
-            System.out.println("3. View My Playlist");
-            System.out.println("4. Exit");
+            choice = InputHelper.readInt(scanner, "Enter your choice: ");
 
-            System.out.print("\nEnter your choice: ");
-            choice = sc.nextInt();
-            sc.nextLine();
-
-            if (choice == 1 || choice == 2) {
-
-                System.out.print("Enter search keyword: ");
-                String keyword = sc.nextLine();
-
-                System.out.println("\nSearching online...");
-
-                // Fetch songs from API
-                ArrayList<Song> results =
-                        MusicAPI.searchSongs(keyword, choice);
-
-                if (results.isEmpty()) {
-
-                    System.out.println("No songs found!");
-
-                } else {
-
-                    System.out.println("\n===== SEARCH RESULTS =====");
-
-                    for (int i = 0; i < results.size(); i++) {
-
-                        System.out.println("\nSong " + (i + 1));
-                        results.get(i).display();
-                    }
-
-                    System.out.print(
-                            "Enter song number to add (0 to skip): "
-                    );
-
-                    int select = sc.nextInt();
-                    sc.nextLine();
-
-                    if (select >= 1 && select <= results.size()) {
-
-                        Song selected = results.get(select - 1);
-
-                        playlist.add(selected);
-
-                        System.out.println(
-                                "\nSong added to your playlist!"
-                        );
-
-                    } else if (select == 0) {
-
-                        System.out.println("Song not added.");
-
-                    } else {
-
-                        System.out.println("Invalid song number!");
-                    }
-                }
-
-            } else if (choice == 3) {
-
-                System.out.println("\n===== MY PLAYLIST =====");
-
-                if (playlist.isEmpty()) {
-
-                    System.out.println("Your playlist is empty!");
-
-                } else {
-
-                    for (Song s : playlist) {
-                        s.display();
-                    }
-                }
-
-            } else if (choice == 4) {
-
-                System.out.println("Thank you for using Music Playlist!");
-
-            } else {
-
-                System.out.println("Invalid choice!");
+            switch (choice) {
+                case 1:
+                    handleOnlineSearch(scanner, playlist, 1);
+                    break;
+                case 2:
+                    handleOnlineSearch(scanner, playlist, 2);
+                    break;
+                case 3:
+                    playlist.displayPlaylist();
+                    break;
+                case 0:
+                    System.out.println("Thank you for using Music Playlist Engine!");
+                    break;
+                default:
+                    System.out.println("Invalid choice! Please select an option from the menu.");
+                    break;
             }
 
-        } while (choice != 4);
+        } while (choice != 0);
 
-        sc.close();
+        scanner.close();
+    }
+
+    /**
+     * Coordinates the online search flow and allows adding a selected song to the playlist.
+     *
+     * @param scanner the terminal scanner
+     * @param playlist the local playlist to receive songs
+     * @param searchType 1 for title search, 2 for artist search
+     */
+    private static void handleOnlineSearch(Scanner scanner, Playlist playlist, int searchType) {
+        String keyword = InputHelper.readNonEmptyString(scanner, "Enter search keyword: ");
+
+        System.out.println("\nSearching online...");
+        List<Song> results = MusicAPI.searchSongs(keyword, searchType);
+
+        if (results.isEmpty()) {
+            return;
+        }
+
+        System.out.println("\n===== SEARCH RESULTS =====");
+        for (int i = 0; i < results.size(); i++) {
+            System.out.println((i + 1) + ". " + results.get(i));
+        }
+
+        int selection = InputHelper.readInt(scanner, "\nEnter song number to add (0 to cancel): ");
+
+        if (selection == 0) {
+            System.out.println("Song not added.");
+        } else if (selection >= 1 && selection <= results.size()) {
+            Song selected = results.get(selection - 1);
+            playlist.addSong(selected);
+            System.out.println("\nSong added to your playlist: " + selected);
+        } else {
+            System.out.println("Invalid song number! Selection cancelled.");
+        }
     }
 }
