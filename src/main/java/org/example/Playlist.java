@@ -10,6 +10,7 @@ import java.util.List;
 public class Playlist {
 
     private final List<Song> songs;
+    private int currentIndex = -1;
 
     public Playlist() {
         this.songs = new ArrayList<>();
@@ -17,6 +18,7 @@ public class Playlist {
 
     /**
      * Adds a song to the playlist in insertion order.
+     * Adding a song does not alter the currentIndex or record playback.
      *
      * @param song the song to add
      * @return true if the song was added, false if null
@@ -46,7 +48,75 @@ public class Playlist {
     }
 
     /**
+     * Returns the currently playing song, or null if no song is selected.
+     *
+     * @return current Song or null
+     */
+    public Song getCurrentSong() {
+        if (currentIndex >= 0 && currentIndex < songs.size()) {
+            return songs.get(currentIndex);
+        }
+        return null;
+    }
+
+    /**
+     * Returns the current playback index (0-based) or -1 if no song is selected.
+     *
+     * @return current index or -1
+     */
+    public int getCurrentIndex() {
+        return currentIndex;
+    }
+
+    /**
+     * Selects and plays a song using a 1-based user-facing song number.
+     * Converts to 0-based index internally and updates currentIndex.
+     * Does not print output and does not update recently played history.
+     *
+     * @param songNumber 1-based song number
+     * @return the selected Song, or null if invalid or playlist is empty
+     */
+    public Song playSong(int songNumber) {
+        int index = songNumber - 1;
+        if (songs.isEmpty() || index < 0 || index >= songs.size()) {
+            return null;
+        }
+        this.currentIndex = index;
+        return songs.get(index);
+    }
+
+    /**
+     * Randomly reorders the songs in the playlist.
+     * If the playlist has 0 or 1 song, returns false without shuffling.
+     * If 2 or more songs, reorders with Collections.shuffle.
+     * If a current song is selected, preserves the same Song object reference
+     * and updates currentIndex to its new position.
+     *
+     * @return true if shuffled successfully, false if 0 or 1 song
+     */
+    public boolean shufflePlaylist() {
+        if (songs.size() < 2) {
+            return false;
+        }
+
+        Song currentSong = getCurrentSong();
+        Collections.shuffle(songs);
+
+        if (currentSong != null) {
+            for (int i = 0; i < songs.size(); i++) {
+                if (songs.get(i) == currentSong) {
+                    currentIndex = i;
+                    break;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Displays all songs in the local playlist with numbers.
+     * If a song is currently selected/playing, marks it with "  <-- Now Playing".
      */
     public void displayPlaylist() {
         System.out.println("\n===== LOCAL PLAYLIST =====");
@@ -54,7 +124,11 @@ public class Playlist {
             System.out.println("Your playlist is empty!");
         } else {
             for (int i = 0; i < songs.size(); i++) {
-                System.out.println((i + 1) + ". " + songs.get(i));
+                if (i == currentIndex) {
+                    System.out.println((i + 1) + ". " + songs.get(i) + "  <-- Now Playing");
+                } else {
+                    System.out.println((i + 1) + ". " + songs.get(i));
+                }
             }
         }
         System.out.println("==========================");

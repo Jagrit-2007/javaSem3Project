@@ -11,6 +11,7 @@ public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         Playlist playlist = new Playlist();
+        RecentlyPlayedManager recentlyPlayedManager = new RecentlyPlayedManager(10);
 
         // Populate initial demo songs
         playlist.addSong(new Song("Perfect", "Ed Sheeran", "4:23"));
@@ -27,6 +28,9 @@ public class Main {
             System.out.println("1. Search Song Online by Title");
             System.out.println("2. Search Song Online by Artist");
             System.out.println("3. View Local Playlist");
+            System.out.println("4. Play a Song");
+            System.out.println("5. Shuffle Playlist");
+            System.out.println("6. View Recently Played");
             System.out.println("0. Exit");
             System.out.println("================================");
 
@@ -42,6 +46,15 @@ public class Main {
                 case 3:
                     playlist.displayPlaylist();
                     break;
+                case 4:
+                    handlePlaySong(scanner, playlist, recentlyPlayedManager);
+                    break;
+                case 5:
+                    handleShufflePlaylist(playlist);
+                    break;
+                case 6:
+                    recentlyPlayedManager.displayRecentlyPlayed();
+                    break;
                 case 0:
                     System.out.println("Thank you for using Music Playlist Engine!");
                     break;
@@ -53,6 +66,52 @@ public class Main {
         } while (choice != 0);
 
         scanner.close();
+    }
+
+    /**
+     * Coordinates playing a song from the playlist and records it to recent history.
+     *
+     * @param scanner the terminal scanner
+     * @param playlist the local playlist
+     * @param recentlyPlayedManager the history manager
+     */
+    private static void handlePlaySong(Scanner scanner, Playlist playlist, RecentlyPlayedManager recentlyPlayedManager) {
+        if (playlist.isEmpty()) {
+            System.out.println("Playlist is empty.");
+            return;
+        }
+
+        playlist.displayPlaylist();
+        int songNumber = InputHelper.readInt(scanner, "Enter song number to play: ");
+        Song playedSong = playlist.playSong(songNumber);
+
+        if (playedSong == null) {
+            System.out.println("Invalid song number.");
+        } else {
+            System.out.println("Now Playing: " + playedSong);
+            recentlyPlayedManager.recordPlay(playedSong);
+        }
+    }
+
+    /**
+     * Coordinates shuffling the playlist and displaying the result.
+     *
+     * @param playlist the local playlist to shuffle
+     */
+    private static void handleShufflePlaylist(Playlist playlist) {
+        if (playlist.isEmpty()) {
+            playlist.shufflePlaylist();
+            System.out.println("Cannot shuffle an empty playlist.");
+        } else if (playlist.size() == 1) {
+            playlist.shufflePlaylist();
+            System.out.println("At least two songs are required to shuffle.");
+        } else {
+            boolean success = playlist.shufflePlaylist();
+            if (success) {
+                System.out.println("Playlist shuffled successfully.");
+                playlist.displayPlaylist();
+            }
+        }
     }
 
     /**
