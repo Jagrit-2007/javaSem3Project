@@ -31,6 +31,8 @@ public class Main {
             System.out.println("4. Play a Song");
             System.out.println("5. Shuffle Playlist");
             System.out.println("6. View Recently Played");
+            System.out.println("7. Add Song Manually");
+            System.out.println("8. Remove Song");
             System.out.println("0. Exit");
             System.out.println("================================");
 
@@ -54,6 +56,12 @@ public class Main {
                     break;
                 case 6:
                     recentlyPlayedManager.displayRecentlyPlayed();
+                    break;
+                case 7:
+                    handleManualAddSong(scanner, playlist);
+                    break;
+                case 8:
+                    handleRemoveSong(scanner, playlist);
                     break;
                 case 0:
                     System.out.println("Thank you for using Music Playlist Engine!");
@@ -146,6 +154,67 @@ public class Main {
             System.out.println("\nSong added to your playlist: " + selected);
         } else {
             System.out.println("Invalid song number! Selection cancelled.");
+        }
+    }
+
+    /**
+     * Coordinates manually adding a song to the playlist.
+     *
+     * @param scanner the terminal scanner
+     * @param playlist the local playlist
+     */
+    private static void handleManualAddSong(Scanner scanner, Playlist playlist) {
+        String title = InputHelper.readString(scanner, "Enter song title: ");
+        String artist = InputHelper.readString(scanner, "Enter artist name: ");
+        String duration = InputHelper.readString(scanner, "Enter duration (m:ss): ");
+
+        if (title.trim().isEmpty() || artist.trim().isEmpty() || !isValidDuration(duration.trim())) {
+            System.out.println("Failed to add song. Title and artist cannot be blank, and duration must be in m:ss format.");
+            return;
+        }
+
+        Song song = new Song(title.trim(), artist.trim(), duration.trim());
+        boolean added = playlist.addSong(song);
+        if (added) {
+            System.out.println("Song added successfully: " + song);
+        } else {
+            System.out.println("Failed to add song.");
+        }
+    }
+
+    /**
+     * Validates whether a duration string adheres to m:ss format.
+     *
+     * @param duration the duration string to validate
+     * @return true if valid m:ss format, false otherwise
+     */
+    private static boolean isValidDuration(String duration) {
+        if (duration == null) {
+            return false;
+        }
+        return duration.matches("^\\d+:[0-5]\\d$");
+    }
+
+    /**
+     * Coordinates removing a song from the playlist by user-selected song number.
+     *
+     * @param scanner the terminal scanner
+     * @param playlist the local playlist
+     */
+    private static void handleRemoveSong(Scanner scanner, Playlist playlist) {
+        if (playlist.isEmpty()) {
+            System.out.println("Playlist is empty.");
+            return;
+        }
+
+        playlist.displayPlaylist();
+        int songNumber = InputHelper.readInt(scanner, "Enter song number to remove: ");
+        Song removedSong = playlist.removeSong(songNumber);
+
+        if (removedSong == null) {
+            System.out.println("Invalid song number.");
+        } else {
+            System.out.println("Removed: " + removedSong);
         }
     }
 }

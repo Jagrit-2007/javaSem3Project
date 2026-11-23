@@ -43,4 +43,19 @@ public class InputHelper {
             System.out.println("Input cannot be empty. Please try again.");
         }
     }
+
+    /**
+     * Safely reads a line of text from the scanner without enforcing non-empty input.
+     *
+     * @param scanner the terminal scanner
+     * @param prompt the prompt to display to the user
+     * @return the string entered by the user, or empty string on EOF
+     */
+    public static String readString(Scanner scanner, String prompt) {
+        System.out.print(prompt);
+        if (scanner.hasNextLine()) {
+            return scanner.nextLine();
+        }
+        return "";
+    }
 }

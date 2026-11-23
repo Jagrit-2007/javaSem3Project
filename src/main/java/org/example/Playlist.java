@@ -31,6 +31,43 @@ public class Playlist {
     }
 
     /**
+     * Removes a song from the playlist using a 1-based song number.
+     * Updates currentIndex according to playback preservation rules:
+     * - If the last remaining song is removed: currentIndex = -1
+     * - If a song before the current song is removed: currentIndex--
+     * - If the current song is removed:
+     *     - if no songs remain: currentIndex = -1
+     *     - if another song now occupies the same index: keep that index
+     *     - if the removed current song was the final item: move currentIndex to songs.size() - 1
+     * - If a song after the current song is removed: currentIndex remains unchanged
+     *
+     * Removing a song does not modify RecentlyPlayedManager.
+     *
+     * @param songNumber 1-based song number
+     * @return the removed Song, or null if invalid or playlist is empty
+     */
+    public Song removeSong(int songNumber) {
+        if (songs.isEmpty() || songNumber < 1 || songNumber > songs.size()) {
+            return null;
+        }
+
+        int index = songNumber - 1;
+        Song removedSong = songs.remove(index);
+
+        if (songs.isEmpty()) {
+            currentIndex = -1;
+        } else if (index < currentIndex) {
+            currentIndex--;
+        } else if (index == currentIndex) {
+            if (currentIndex >= songs.size()) {
+                currentIndex = songs.size() - 1;
+            }
+        }
+
+        return removedSong;
+    }
+
+    /**
      * Returns an unmodifiable view of the songs in the playlist.
      *
      * @return unmodifiable list of songs
