@@ -160,6 +160,48 @@ public class Playlist {
         return songs.get(currentIndex);
     }
 
+    /**
+     * Searches the local playlist for songs matching the query by title.
+     * Case-insensitive, partial match.
+     *
+     * @param query title search term
+     * @return list of matching Song objects, or empty list if no matches or blank query
+     */
+    public List<Song> searchByTitle(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        String term = query.trim().toLowerCase();
+        List<Song> results = new ArrayList<>();
+        for (Song song : songs) {
+            if (song.getTitle().toLowerCase().contains(term)) {
+                results.add(song);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * Searches the local playlist for songs matching the query by artist.
+     * Case-insensitive, partial match.
+     *
+     * @param query artist search term
+     * @return list of matching Song objects, or empty list if no matches or blank query
+     */
+    public List<Song> searchByArtist(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        String term = query.trim().toLowerCase();
+        List<Song> results = new ArrayList<>();
+        for (Song song : songs) {
+            if (song.getArtist().toLowerCase().contains(term)) {
+                results.add(song);
+            }
+        }
+        return results;
+    }
+
 
 
 

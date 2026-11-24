@@ -33,8 +33,10 @@ public class Main {
             System.out.println("6. View Recently Played");
             System.out.println("7. Add Song Manually");
             System.out.println("8. Remove Song");
-            System.out.println("9. Next Song");
-            System.out.println("10. Previous Song");
+            System.out.println("9. Search Playlist By Title");
+            System.out.println("10. Search Playlist By Artist");
+            System.out.println("11. Next Song");
+            System.out.println("12. Previous Song");
             System.out.println("0. Exit");
             System.out.println("================================");
 
@@ -66,9 +68,15 @@ public class Main {
                     handleRemoveSong(scanner, playlist);
                     break;
                 case 9:
-                    handlePlayNext(playlist, recentlyPlayedManager);
+                    handleLocalSearchByTitle(scanner, playlist);
                     break;
                 case 10:
+                    handleLocalSearchByArtist(scanner, playlist);
+                    break;
+                case 11:
+                    handlePlayNext(playlist, recentlyPlayedManager);
+                    break;
+                case 12:
                     handlePlayPrevious(playlist, recentlyPlayedManager);
                     break;
                 case 0:
@@ -116,10 +124,8 @@ public class Main {
      */
     private static void handleShufflePlaylist(Playlist playlist) {
         if (playlist.isEmpty()) {
-            playlist.shufflePlaylist();
             System.out.println("Cannot shuffle an empty playlist.");
         } else if (playlist.size() == 1) {
-            playlist.shufflePlaylist();
             System.out.println("At least two songs are required to shuffle.");
         } else {
             boolean success = playlist.shufflePlaylist();
@@ -127,6 +133,48 @@ public class Main {
                 System.out.println("Playlist shuffled successfully.");
                 playlist.displayPlaylist();
             }
+        }
+    }
+
+    /**
+     * Coordinates searching the local playlist by song title.
+     *
+     * @param scanner the terminal scanner
+     * @param playlist the local playlist
+     */
+    private static void handleLocalSearchByTitle(Scanner scanner, Playlist playlist) {
+        String keyword = InputHelper.readString(scanner, "Enter search text: ");
+        List<Song> results = playlist.searchByTitle(keyword);
+
+        if (results.isEmpty()) {
+            System.out.println("No matching songs found in the local playlist.");
+        } else {
+            System.out.println("\n===== SEARCH RESULTS =====");
+            for (int i = 0; i < results.size(); i++) {
+                System.out.println((i + 1) + ". " + results.get(i));
+            }
+            System.out.println("==========================");
+        }
+    }
+
+    /**
+     * Coordinates searching the local playlist by artist name.
+     *
+     * @param scanner the terminal scanner
+     * @param playlist the local playlist
+     */
+    private static void handleLocalSearchByArtist(Scanner scanner, Playlist playlist) {
+        String keyword = InputHelper.readString(scanner, "Enter search text: ");
+        List<Song> results = playlist.searchByArtist(keyword);
+
+        if (results.isEmpty()) {
+            System.out.println("No matching songs found in the local playlist.");
+        } else {
+            System.out.println("\n===== SEARCH RESULTS =====");
+            for (int i = 0; i < results.size(); i++) {
+                System.out.println((i + 1) + ". " + results.get(i));
+            }
+            System.out.println("==========================");
         }
     }
 
