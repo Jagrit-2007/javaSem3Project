@@ -122,6 +122,58 @@ public class Playlist {
         return songs.get(index);
     }
 
+        /**
+     * Moves to the next song. Circular navigation.
+     * If no song is selected, selects the first song.
+     * Does not print output and does not update recently played history.
+     *
+     * @return the next Song, or null if the playlist is empty
+     */
+    public Song playNext() {
+        if (songs.isEmpty()) {
+            return null;
+        }
+        if (currentIndex == -1) {
+            currentIndex = 0;
+        } else {
+            currentIndex = (currentIndex + 1) % songs.size();
+        }
+        return songs.get(currentIndex);
+    }
+
+    /**
+     * Moves to the previous song. Circular navigation.
+     * If no song is selected, selects the last song.
+     * Does not print output and does not update recently played history.
+     *
+     * @return the previous Song, or null if the playlist is empty
+     */
+    public Song playPrevious() {
+        if (songs.isEmpty()) {
+            return null;
+        }
+        if (currentIndex == -1) {
+            currentIndex = songs.size() - 1;
+        } else {
+            currentIndex = (currentIndex - 1 + songs.size()) % songs.size();
+        }
+        return songs.get(currentIndex);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Randomly reorders the songs in the playlist.
      * If the playlist has 0 or 1 song, returns false without shuffling.
@@ -171,3 +223,7 @@ public class Playlist {
         System.out.println("==========================");
     }
 }
+
+
+
+
