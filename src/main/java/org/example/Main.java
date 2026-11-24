@@ -33,6 +33,8 @@ public class Main {
             System.out.println("6. View Recently Played");
             System.out.println("7. Add Song Manually");
             System.out.println("8. Remove Song");
+            System.out.println("9. Next Song");
+            System.out.println("10. Previous Song");
             System.out.println("0. Exit");
             System.out.println("================================");
 
@@ -62,6 +64,12 @@ public class Main {
                     break;
                 case 8:
                     handleRemoveSong(scanner, playlist);
+                    break;
+                case 9:
+                    handlePlayNext(playlist, recentlyPlayedManager);
+                    break;
+                case 10:
+                    handlePlayPrevious(playlist, recentlyPlayedManager);
                     break;
                 case 0:
                     System.out.println("Thank you for using Music Playlist Engine!");
@@ -215,6 +223,40 @@ public class Main {
             System.out.println("Invalid song number.");
         } else {
             System.out.println("Removed: " + removedSong);
+        }
+    }
+    
+    /**
+     * Coordinates moving to the next song and records it to recent history.
+     *
+     * @param playlist the local playlist
+     * @param recentlyPlayedManager the history manager
+     */
+    private static void handlePlayNext(Playlist playlist, RecentlyPlayedManager recentlyPlayedManager) {
+        Song nextSong = playlist.playNext();
+
+        if (nextSong == null) {
+            System.out.println("Playlist is empty.");
+        } else {
+            System.out.println("Now Playing: " + nextSong);
+            recentlyPlayedManager.recordPlay(nextSong);
+        }
+    }
+
+    /**
+     * Coordinates moving to the previous song and records it to recent history.
+     *
+     * @param playlist the local playlist
+     * @param recentlyPlayedManager the history manager
+     */
+    private static void handlePlayPrevious(Playlist playlist, RecentlyPlayedManager recentlyPlayedManager) {
+        Song previousSong = playlist.playPrevious();
+
+        if (previousSong == null) {
+            System.out.println("Playlist is empty.");
+        } else {
+            System.out.println("Now Playing: " + previousSong);
+            recentlyPlayedManager.recordPlay(previousSong);
         }
     }
 }
